@@ -52,11 +52,7 @@ isDirectory( const char *directory )
   if( directory )
   {
     struct stat stats;
-    if( stat( directory, &stats ) == 0 &&
-        S_ISDIR( stats.st_mode ) )
-    {
-      return true;
-    }
+    return stat( directory, &stats ) == 0 && S_ISDIR( stats.st_mode );
   }
 
   return false;
