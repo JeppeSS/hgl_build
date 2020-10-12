@@ -64,6 +64,8 @@ new_project( char *p_root )
         {
           fprintf( stdout, "Could not create directory.\n" );
         }                     
+
+        hgl_string_destroy( p_path );
       }
       else
       {
