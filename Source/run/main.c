@@ -7,7 +7,7 @@
 
 
 bool
-isDirectory( const char *directory );
+is_directory( const char *directory );
 
 int
 main( int argc, char* argv[ argc + 1 ] )
@@ -18,7 +18,7 @@ main( int argc, char* argv[ argc + 1 ] )
     {
       if( argc == 3 )
       {
-        if( !isDirectory( argv[ 2 ] ) )
+        if( !is_directory( argv[ 2 ] ) )
         {
           fprintf( stdout, "Creating new project: %s\n", argv[ 2 ] );
         }
@@ -47,7 +47,7 @@ main( int argc, char* argv[ argc + 1 ] )
 }
 
 bool
-isDirectory( const char *directory )
+is_directory( const char *directory )
 {
   if( directory )
   {
