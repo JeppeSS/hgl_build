@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #include <sys/stat.h>
+#include <sys/types.h>
 
 
 bool
@@ -20,7 +21,14 @@ main( int argc, char* argv[ argc + 1 ] )
       {
         if( !is_directory( argv[ 2 ] ) )
         {
-          fprintf( stdout, "Creating new project: %s\n", argv[ 2 ] );
+	  if( mkdir( argv[ 2 ] ) == 0 )
+          {
+            fprintf( stdout, "Creating new project: %s\n", argv[ 2 ] );
+          }
+          else
+          {
+            fprintf( stdout, "Could not create directory.\n" );
+          }
         }
         else
         {
