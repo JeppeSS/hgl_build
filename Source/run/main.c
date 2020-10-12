@@ -1,17 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdbool.h>
 
 #include <sys/stat.h>
 #include <sys/types.h>
+
+#include "../library/hgl_string/hgl_string.h"
 
 
 bool
 is_directory( const char *directory );
 
 void
-new_project( const char *p_root );
+new_project( char *p_root );
 
 int
 main( int argc, char* argv[ argc + 1 ] )
@@ -45,7 +46,7 @@ main( int argc, char* argv[ argc + 1 ] )
 
 
 void
-new_project( const char *p_root )
+new_project( char *p_root )
 {
   if( p_root )
   {
@@ -54,17 +55,8 @@ new_project( const char *p_root )
       if( mkdir( p_root ) == 0 )
       {
         fprintf( stdout, "Creating new project: %s...\n", p_root );
-
-        const size_t root_length = strlen( p_root );
-        const size_t path_length = root_length + strlen( "/Source" );
-        const size_t total_length = root_length + path_length;
-
-        char *p_path = strncpy( malloc( sizeof( char[ total_length ] ) ),
-                                p_root, total_length - 1 );
-            
-        p_path = strncat( p_path, "/Source", path_length );
-        p_path[ total_length - 1 ] = '\0';
-            
+	
+        char *p_path = hgl_string_concat( p_root, "/Source" );            
         if( mkdir( p_path ) == 0 )
         {
         }
