@@ -23,6 +23,12 @@ create_initial_folder_structure( char *p_root );
 void
 create_gitignore_file( char *p_root );
 
+void
+create_readme_file( char *p_root );
+
+void
+create_main_file( char *p_root );
+
 int
 main( int argc, char* argv[ argc + 1 ] )
 {
@@ -60,6 +66,8 @@ create_new_project( char *p_root )
   {
     create_initial_folder_structure( p_root );
     create_gitignore_file( p_root );
+    create_readme_file( p_root );
+    create_main_file( p_root );
   }
 }
 
@@ -96,7 +104,7 @@ create_gitignore_file( char *p_root )
   if( p_gitignore_file )
   {
     fprintf( p_gitignore_file, 
-             "# Executables\n*.exe\n*.out\n\n#Libraries\nlibrary/" );
+             "# Executables\n*.exe\n*.out\n\n# Libraries\nlibrary/" );
     fclose( p_gitignore_file );
     fprintf( stdout, "File gitignore created.\n" );
   }
@@ -104,6 +112,35 @@ create_gitignore_file( char *p_root )
   hgl_string_destroy( p_gitignore_path ); 
 }
 
+void
+create_readme_file( char *p_root )
+{
+  char *p_readme_path = hgl_string_concat( p_root, "/README.md" );
+  FILE *p_readme_file = fopen( p_readme_path, "w" );
+  if( p_readme_file )
+  {
+    fprintf( p_readme_file, "# %s", p_root );
+    fclose( p_readme_file );
+    fprintf( stdout, "File README created.\n" );
+  }
+
+  hgl_string_destroy( p_readme_path ); 
+}
+
+void
+create_main_file( char *p_root )
+{
+  char *p_main_path = hgl_string_concat( p_root, "/Source/run/main.c" );
+  FILE *p_main_file = fopen( p_main_path, "w" );
+  if( p_main_file )
+  {
+    fprintf( p_main_file, "#include <stdio.h>\n#include <stdlib.h>\n\nint\nmain( void )\n{\n  fprintf( stdout, \"Hello, World!\" );\n\n  return EXIT_SUCCESS;\n}" );
+    fclose( p_main_file );
+    fprintf( stdout, "File main.c created.\n" );
+  }
+
+  hgl_string_destroy( p_main_path ); 
+}
 
 bool
 is_directory( const char *directory )
