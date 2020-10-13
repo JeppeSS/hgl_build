@@ -20,6 +20,9 @@ create_new_project( char *p_root );
 void
 create_initial_folder_structure( char *p_root );
 
+void
+create_gitignore_file( char *p_root );
+
 int
 main( int argc, char* argv[ argc + 1 ] )
 {
@@ -53,35 +56,52 @@ main( int argc, char* argv[ argc + 1 ] )
 void
 create_new_project( char *p_root )
 {
-  create_initial_folder_structure( p_root );
+  if( p_root )
+  {
+    create_initial_folder_structure( p_root );
+    create_gitignore_file( p_root );
+  }
 }
 
 void
 create_initial_folder_structure( char *p_root )
 {
-  if( p_root )
+  if( !is_directory( p_root ) )
   {
-    if( !is_directory( p_root ) )
-    {
-      char *p_source_path = hgl_string_concat( p_root, "/Source" );
-      char *p_run_path    = hgl_string_concat( p_source_path, "/run" );
+    char *p_source_path = hgl_string_concat( p_root, "/Source" );
+    char *p_run_path    = hgl_string_concat( p_source_path, "/run" );
        
-      if( mkdir( p_root )        == 0 &&
-          mkdir( p_source_path ) == 0 &&
-          mkdir( p_run_path )    == 0 )
-      {
-        fprintf( stdout, "Folder structure complete.\n" );
-      }
-      else
-      {
-        // TODO[Jeppe]: Add cleanup procedure.
-        fprintf( stdout, "Something went wrong, could not create folders.\n" );
-      }
-      
-      hgl_string_destroy( p_source_path );
-      hgl_string_destroy( p_run_path );
+    if( mkdir( p_root )        == 0 &&
+        mkdir( p_source_path ) == 0 &&
+        mkdir( p_run_path )    == 0 )
+    {
+      fprintf( stdout, "Folder structure complete.\n" );
     }
+    else
+    {
+      // TODO[Jeppe]: Add cleanup procedure.
+      fprintf( stdout, "Something went wrong, could not create folders.\n" );
+    }
+      
+    hgl_string_destroy( p_source_path );
+    hgl_string_destroy( p_run_path );
   }
+}
+
+void
+create_gitignore_file( char *p_root )
+{
+  char *p_gitignore_path = hgl_string_concat( p_root, "/.gitignore" );
+  FILE *p_gitignore_file = fopen( p_gitignore_path, "w" );
+  if( p_gitignore_file )
+  {
+    fprintf( p_gitignore_file, 
+             "# Executables\n*.exe\n*.out\n\n#Libraries\nlibrary/" );
+    fclose( p_gitignore_file );
+    fprintf( stdout, "File gitignore created.\n" );
+  }
+
+  hgl_string_destroy( p_gitignore_path ); 
 }
 
 
