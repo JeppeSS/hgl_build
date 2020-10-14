@@ -15,6 +15,9 @@ void
 new_project( char *p_root );
 
 void
+write_to_file( const char *p_file_name, char *p_content );
+
+void
 create_new_project( char *p_root );
 
 void
@@ -97,18 +100,22 @@ create_initial_folder_structure( char *p_root )
 }
 
 void
+write_to_file( const char *p_file_name, char *p_content )
+{
+  FILE *p_file = fopen( p_file_name, "w" );
+  if( p_file )
+  {
+    fprintf( p_file, p_content );
+    fclose( p_file );
+  }
+}
+
+void
 create_gitignore_file( char *p_root )
 {
   char *p_gitignore_path = hgl_string_concat( p_root, "/.gitignore" );
-  FILE *p_gitignore_file = fopen( p_gitignore_path, "w" );
-  if( p_gitignore_file )
-  {
-    fprintf( p_gitignore_file, 
-             "# Executables\n*.exe\n*.out\n\n# Libraries\nlibrary/" );
-    fclose( p_gitignore_file );
-    fprintf( stdout, "File gitignore created.\n" );
-  }
-
+  write_to_file( p_gitignore_path,
+                 "# Executables\n*.exe\n*.out\n\n# Libraries\nlibrary/" ); 
   hgl_string_destroy( p_gitignore_path ); 
 }
 
@@ -116,14 +123,9 @@ void
 create_readme_file( char *p_root )
 {
   char *p_readme_path = hgl_string_concat( p_root, "/README.md" );
-  FILE *p_readme_file = fopen( p_readme_path, "w" );
-  if( p_readme_file )
-  {
-    fprintf( p_readme_file, "# %s", p_root );
-    fclose( p_readme_file );
-    fprintf( stdout, "File README created.\n" );
-  }
-
+  char *p_content = hgl_string_concat("# ", p_root );
+  write_to_file( p_readme_path, p_content );
+  hgl_string_destroy( p_content );
   hgl_string_destroy( p_readme_path ); 
 }
 
@@ -131,14 +133,7 @@ void
 create_main_file( char *p_root )
 {
   char *p_main_path = hgl_string_concat( p_root, "/Source/run/main.c" );
-  FILE *p_main_file = fopen( p_main_path, "w" );
-  if( p_main_file )
-  {
-    fprintf( p_main_file, "#include <stdio.h>\n#include <stdlib.h>\n\nint\nmain( void )\n{\n  fprintf( stdout, \"Hello, World!\" );\n\n  return EXIT_SUCCESS;\n}" );
-    fclose( p_main_file );
-    fprintf( stdout, "File main.c created.\n" );
-  }
-
+  write_to_file( p_main_path, "#include <stdio.h>\n#include <stdlib.h>\n\nint\nmain( void )\n{\n  fprintf( stdout, \"Hello, World!\" );\n\n  return EXIT_SUCCESS;\n}" ); 
   hgl_string_destroy( p_main_path ); 
 }
 
