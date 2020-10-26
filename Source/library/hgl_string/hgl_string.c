@@ -13,7 +13,7 @@ hgl_string_new( const char *p_init_string )
     // +1 for null-termination symbol.
     const size_t length = strlen( p_init_string ) + 1;
     char *p_hgl_string = strncpy( malloc( sizeof( char[ length ] ) ),
-                                  p_init_string, length - 1 );
+                                  p_init_string, length );
 
     if( p_hgl_string )
     {
@@ -46,7 +46,7 @@ hgl_string_concat( char *p_string_head, char *p_string_tail )
     const size_t tail_length  = hgl_string_length( p_string_tail );
     const size_t total_length = head_length + tail_length;
     char *p_new_string = strncpy( malloc( sizeof( char[ total_length ] ) ),
-                                  p_string_head, total_length - 1 );
+                                  p_string_head, total_length );
 
     if( p_new_string )
     {

@@ -1,9 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #include <sys/stat.h>
 #include <sys/types.h>
+
+#include <dirent.h>
 
 #include "../library/hgl_string/hgl_string.h"
 
@@ -21,6 +24,9 @@ void
 create_new_project( char *p_root );
 
 void
+build_project( void );
+
+void
 create_initial_folder_structure( char *p_root );
 
 void
@@ -31,6 +37,32 @@ create_readme_file( char *p_root );
 
 void
 create_main_file( char *p_root );
+
+
+
+
+typedef struct
+{
+  char    **pp_folders;
+  uint8_t capacity;
+  uint8_t size;
+
+} folder_stack;
+
+folder_stack *
+folder_stack_init( folder_stack *p_stack, uint8_t capacity );
+
+void
+folder_stack_push( folder_stack *p_stack, char *p_folder );
+
+char *
+folder_stack_pop( folder_stack *p_stack );
+
+bool
+folder_stack_is_empty( folder_stack *p_stack );
+
+void
+folder_stack_destroy( folder_stack *p_stack );
 
 int
 main( int argc, char* argv[ argc + 1 ] )
@@ -47,6 +79,10 @@ main( int argc, char* argv[ argc + 1 ] )
       {
         fprintf( stdout, "Missing argument for project name.\n" );
       }
+    }
+    else if( strcmp( argv[ 1 ], "build" ) == 0 )
+    {
+      build_project();
     }
     else
     {
@@ -147,4 +183,148 @@ is_directory( const char *directory )
   }
 
   return false;
+}
+
+void
+build_project( void )
+{
+  folder_stack *p_folder_stack = folder_stack_init( malloc( sizeof( folder_stack ) ),
+                                                    20 );
+
+  folder_stack *p_file_stack = folder_stack_init( malloc( sizeof( folder_stack ) ),
+                                                  50 );
+
+  folder_stack_push(p_folder_stack, "Source");
+  while( !folder_stack_is_empty( p_folder_stack ) )
+  {
+    char *p_folder = folder_stack_pop( p_folder_stack );
+    
+    if( is_directory( p_folder ) )
+    {
+      struct dirent *p_dp;
+      DIR *p_dir = opendir( p_folder );
+      while( ( p_dp = readdir( p_dir ) ) != NULL )
+      {
+        char *p_tmp_path = hgl_string_concat( p_folder, "/" );
+        char *p_sub_path = hgl_string_concat( p_tmp_path, p_dp->d_name );
+        if( strcmp( p_dp->d_name , "." ) != 0 && strcmp( p_dp->d_name, ".." ) != 0 )
+        {
+          folder_stack_push( p_folder_stack, p_sub_path ); 
+        }
+        hgl_string_destroy( p_tmp_path );
+        hgl_string_destroy( p_sub_path );
+      } 
+    }
+    else
+    {
+      size_t file_length = hgl_string_length( p_folder );
+      if( file_length >= 2 && p_folder[ file_length-1 ] == 'c' )
+      {
+        folder_stack_push( p_file_stack, p_folder );
+      }
+    }
+
+    hgl_string_destroy( p_folder );
+  }
+
+  char *c_files = hgl_string_new( "");
+  while( !folder_stack_is_empty( p_file_stack ) )
+  {
+    char *file = folder_stack_pop( p_file_stack );
+ 
+    char *combine = hgl_string_concat( file, " " );   
+    char *tmp = hgl_string_concat( c_files, combine );
+    
+    
+    hgl_string_destroy( c_files );
+
+    c_files = hgl_string_concat( tmp, "" );
+
+    hgl_string_destroy( file );    
+    hgl_string_destroy( tmp );
+    hgl_string_destroy( combine );
+  }
+
+  char *p_command = hgl_string_concat( "gcc -Wall -Wextra ", c_files );
+
+  system( p_command );
+
+  hgl_string_destroy( p_command );
+  
+
+}
+
+
+
+folder_stack *
+folder_stack_init( folder_stack *p_stack, uint8_t capacity )
+{
+  if( p_stack )
+  {
+    *p_stack = ( folder_stack ) {
+      .pp_folders = malloc( capacity * sizeof( char * ) ),
+      .capacity   = capacity,
+      .size       = 0
+    };
+    
+    if( !p_stack->pp_folders )
+    {
+      p_stack->capacity = 0;
+    }
+  }
+
+  return p_stack;
+}
+
+void
+folder_stack_push( folder_stack *p_stack, char *p_folder )
+{
+  if( p_stack )
+  {
+    if( p_stack->capacity > p_stack->size )
+    {
+      p_stack->pp_folders[ p_stack->size ] = hgl_string_new( p_folder );
+      p_stack->size = p_stack->size + 1;
+    }
+  }
+}
+
+char *
+folder_stack_pop( folder_stack *p_stack )
+{
+  if( p_stack )
+  {
+    if( p_stack->size > 0 )
+    {
+      p_stack->size = p_stack->size - 1;
+      return p_stack->pp_folders[ p_stack->size ];
+    }
+  }
+  return 0;
+}
+
+bool
+folder_stack_is_empty( folder_stack *p_stack )
+{
+  if( p_stack )
+  {
+    return p_stack->size == 0;
+  }
+
+  return true;
+}
+
+void
+folder_stack_destroy( folder_stack *p_stack )
+{
+  if( p_stack )
+  {
+    for( uint8_t i = 0; i < p_stack->size; i++ )
+    {
+      hgl_string_destroy( p_stack->pp_folders[ i ] );
+    }
+
+    free( p_stack->pp_folders );
+    free( p_stack );
+  }
 }
